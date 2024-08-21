@@ -1,0 +1,83 @@
+import random
+def main():
+    print("Välkommen till zombieapokalypsen! Du har blivit inlåst i ett hus med zombies.\n"
+          "Svara rätt på alla frågor och välj rätt dörr för att undvika zombies och ta dig till nästa nivå.\n"
+          "Lycka till!\n")
+
+    spela_igen = True
+    while spela_igen:
+        tabell = input_valid_int("Välj vilken tabell (2-12) du vill öva på: ", 
+                                 "Ogiltigt val. Vänligen ange ett tal mellan 2 och 12.", 2, 12)
+        spela_igen = spela_spelet(tabell)
+
+def spela_spelet(tabell):
+    totalt_antal_frågor = 12
+    ställda_frågor = set()  # Håller reda på ställda frågor för att undvika repetition
+
+    for fråga_nummer in range(totalt_antal_frågor):
+        print(f"\nFråga {fråga_nummer + 1}/{totalt_antal_frågor}")
+
+        fråga, rätt_svar = generera_mattefråga(tabell, ställda_frågor)
+        användar_svar = input_valid_int(f"{fråga} ", "Ogiltigt svar. Vänligen ange ett heltal.", 0, 144)
+
+        if användar_svar == rätt_svar:
+            if fråga_nummer < totalt_antal_frågor - 1:
+                antal_dörrar_kvar = totalt_antal_frågor - fråga_nummer
+                rätt_val, zombie_dörr = välj_dörr(antal_dörrar_kvar)
+                if rätt_val:
+                    print("Du undvek zombiesarna! Vidare till nästa fråga.\n")
+                else:
+                    print(f"Du är död! Spelet är över. Zombiesarna fanns bakom dörr {zombie_dörr}.\n")
+                    return fråga_om_spela_igen()
+            else:  
+                print("Grattis! Du svarade rätt på alla frågor och vann spelet!")
+                return fråga_om_spela_igen()
+        else:
+            print("Fel svar! Spelet över.")  # Fel svar på mattefrågan
+            return fråga_om_spela_igen()
+
+def generera_mattefråga(tabell, ställda_frågor):
+    while True:
+        x = random.randint(0, 12)
+        fråga = f"Vad är {x} * {tabell}?"
+        svar = x * tabell
+
+        if fråga not in ställda_frågor:
+            ställda_frågor.add(fråga)
+            return fråga, svar
+
+def välj_dörr(antal_dörrar_kvar):
+    zombie_dörr = random.randint(1, antal_dörrar_kvar)
+    användar_dörr = input_valid_int(f"Välj en dörr mellan 1 och {antal_dörrar_kvar}: ", 
+                                    "Ogiltigt val. Vänligen ange ett heltal.", 1, antal_dörrar_kvar)
+    if användar_dörr != zombie_dörr:
+        print(f"Rätt val! Zombiesarna var bakom dörr {zombie_dörr}.")
+        return True, zombie_dörr
+    return False, zombie_dörr
+
+def input_valid_str(fråga, feltext, möjliga_svar):
+    svar = input(fråga)
+    while svar.lower() not in möjliga_svar:
+        print(feltext)
+        svar = input(fråga)
+    return svar.lower()
+
+def input_valid_int(fråga, feltext, min, max):
+    while True:
+        str_value = input(fråga)
+        if str_value.isdigit():
+            svar = int(str_value)
+            if min <= svar <= max:
+                return svar
+            else:
+                print(feltext)
+        else:
+            print(feltext)
+
+def fråga_om_spela_igen():
+    svar = input_valid_str("Vill du spela igen? (ja/nej): ", 
+                           "Ogiltigt svar. Vänligen svara 'ja' eller 'nej'.", ["ja", "nej"])
+    return svar == "ja"
+
+if __name__ == "__main__":
+    main()
